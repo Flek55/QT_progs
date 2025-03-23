@@ -13,8 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::onClearClicked);
     connect(ui->copyButton, &QPushButton::clicked, this, &MainWindow::onCopyClicked);
 
-    context = allocateContext();
-
     msgBox.setIcon(QMessageBox::Warning);
 
     ui->inputComboBox->addItem("Десятеричная", DEC);
@@ -30,55 +28,51 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::onCalculateClicked() {
-    Params* params = allocateParams();
+    Params params;
     parseNumSystems();
-    parseInputText(params);
-    doOperation(context, VALIDATE, params);
-    updateValue(params);
-    freeParams(params);
+    parseInputText(&params);
+    doOperation(&context, VALIDATE, &params);
+    doOperation(&context, PARSE_OPERATION, &params);
+    updateValue();
 }
 
 void MainWindow::onClearClicked() {
-    Params* params = allocateParams();
-    doOperation(context, CLEAR_RESULT, params);
-    ui->outputLine->setText(QString(context->result));
+    Params params;
+    doOperation(&context, CLEAR_RESULT, &params);
+    ui->outputLine->setText(QString(context.result));
     ui->inputLine->setText("");
-    freeParams(params);
 }
 
 void MainWindow::onSwapClicked() {
-    Params* params = allocateParams();
+    Params params;
     std::string str = ui->inputLine->text().toStdString();
-    params->value = str.c_str();
+    params.value = str.c_str();
     std::string str2 = ui->outputLine->text().toStdString();
-    context->result = str2.c_str();
+    context.result = str2.c_str();
     parseNumSystems();
-    doOperation(context, SWAP, params);
-    updateFields(params);
-    doOperation(context, CLEAR_RESULT, params);
-    freeParams(params);
+    doOperation(&context, SWAP, &params);
+    updateFields(&params);
+    doOperation(&context, CLEAR_RESULT, &params);
 }
 
 void MainWindow::parseInputText(Params* params) {
     std::string inputText = ui->inputLine->text().toStdString();
-    params->value = strdup(inputText.c_str());
+    const char* cstr = inputText.c_str();
+    writeParamsValue(params, cstr);
 }
 
 void MainWindow::updateFields(Params* params) {
     ui->inputLine->setText(QString::fromStdString(params->value));
-    ui->outputLine->setText(QString::fromStdString(context->result));
-    ui->inputComboBox->setCurrentIndex(ui->inputComboBox->findData(context->oldNumSys));
-    ui->outputComboBox->setCurrentIndex(ui->outputComboBox->findData(context->newNumSys));
+    ui->outputLine->setText(QString::fromStdString(context.result));
+    ui->inputComboBox->setCurrentIndex(ui->inputComboBox->findData(context.oldNumSys));
+    ui->outputComboBox->setCurrentIndex(ui->outputComboBox->findData(context.newNumSys));
 }
 
-void MainWindow::updateValue(Params* params) {
-    if (context->validation != CORRECT) {
+void MainWindow::updateValue() {
+    if (context.validation != CORRECT)
         errorSwitchDisplay();
-    } else {
-        doOperation(context, PARSE_OPERATION, params);
-
-        ui->outputLine->setText(QString(context->result));
-    }
+    else
+        ui->outputLine->setText(QString(context.result));
 }
 
 void MainWindow::onCopyClicked() {
@@ -116,12 +110,12 @@ void MainWindow::displayMaxValueError() {
 }
 
 void MainWindow::parseNumSystems() {
-    context->oldNumSys = (enum NumberSystems)ui->inputComboBox->currentData().toInt();
-    context->newNumSys = (enum NumberSystems)ui->outputComboBox->currentData().toInt();
+    context.oldNumSys = (NumberSystems)ui->inputComboBox->currentData().toInt();
+    context.newNumSys = (NumberSystems)ui->outputComboBox->currentData().toInt();
 }
 
 void MainWindow::errorSwitchDisplay() {
-    switch (context->validation) {
+    switch (context.validation) {
     case EMPTY_TEXT:
         displayEmptyInputError();
         break;

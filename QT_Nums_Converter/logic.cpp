@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 void validateInput(AppContext* context, Params* params) {
-    enum ValidationStatus result = CORRECT;
+    ValidationStatus result = CORRECT;
     if (strcmp(params->value, "") == 0)
         result = EMPTY_TEXT;
     else {
@@ -96,7 +96,7 @@ void removeLeadingZeros(char** binValue) {
     *binValue = trimmedValue;
 }
 
-void transformFromDecToBin(Params* params) {
+char* transformFromDecToBin(Params* params) {
     int decValue = atoi(params->value);
     char* binValue = allocateMemoryForString(BIN_LEN);
 
@@ -118,6 +118,7 @@ void transformFromDecToBin(Params* params) {
         transformFromNegDecToBin(binValue);
 
     params->value = strdup(binValue);
+    return binValue;
 }
 
 void transformFromNegDecToBin(char* binValue) {
@@ -153,9 +154,9 @@ void transformFromDecToOct(Params* params) {
         sprintf(octValue, "%o", decValue);
     else {
         char* binValue = allocateMemoryForString(BIN_LEN);
-        transformFromDecToBin(params);
+        binValue = transformFromDecToBin(params);
         char* decValueStr = allocateMemoryForString(DEC_LEN);
-        transformFromBinToDec(binValue, params);
+        decValueStr = transformFromBinToDec(binValue, params);
         sprintf(octValue, "%o", atoi(decValueStr));
         freeStringMemory(decValueStr);
         freeStringMemory(binValue);
@@ -164,7 +165,7 @@ void transformFromDecToOct(Params* params) {
     params->value = strdup(octValue);
 }
 
-void transformFromBinToDec(const char* binValue, Params* params) {
+char* transformFromBinToDec(const char* binValue, Params* params) {
     char* decValue = allocateMemoryForString(DEC_LEN);
     char* endptr = NULL;
     long number = strtoul(binValue, &endptr, BIN);
@@ -176,6 +177,7 @@ void transformFromBinToDec(const char* binValue, Params* params) {
     sprintf(decValue, "%ld", number);
 
     params->value = strdup(decValue);
+    return decValue;
 }
 
 void transformFromOctToDec(Params* params) {
@@ -203,5 +205,9 @@ void swap(AppContext* context, Params* params) {
 
     int tempS = context->oldNumSys;
     context->oldNumSys = context->newNumSys;
-    context->newNumSys = (enum NumberSystems)tempS;
+    context->newNumSys = (NumberSystems)tempS;
+}
+
+void writeParamsValue(Params* params, const char* str) {
+    params->value = strdup(str);
 }

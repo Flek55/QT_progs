@@ -1,8 +1,8 @@
 #include "validate.h"
 
 
-enum ValidationStatus validateBin(Params* params) {
-    enum ValidationStatus code = CORRECT;
+ValidationStatus validateBin(Params* params) {
+    ValidationStatus code = CORRECT;
     int delta = 0;
     const char* tmp = params->value;
 
@@ -19,8 +19,8 @@ enum ValidationStatus validateBin(Params* params) {
     return code;
 }
 
-enum ValidationStatus validateOct(Params* params) {
-    enum ValidationStatus code = CORRECT;
+ValidationStatus validateOct(Params* params) {
+    ValidationStatus code = CORRECT;
     int delta = 0;
     const char* tmp = params->value;
     while (tmp[delta] != '\0') {
@@ -36,18 +36,21 @@ enum ValidationStatus validateOct(Params* params) {
     return code;
 }
 
-enum ValidationStatus validateDec(Params* params){
-    enum ValidationStatus code = CORRECT;
+ValidationStatus validateDec(Params* params){
+    ValidationStatus code = CORRECT;
     int delta = 0;
     const char* tmp = params->value;
     char* endptr = NULL;
     long long value = strtoll(params->value, &endptr, DEC);
 
-    if (value > DEC_MAX)
+    if (value < DEC_MIN || value > DEC_MAX)
         code = MAX_VALUE_EXCEEDED;
     else {
         while (tmp[delta] != '\0') {
             if ((tmp[delta] < ZERO || tmp[delta] > NINE) && tmp[delta] != MINUS) {
+                code = INCORRECT_INPUT;
+                break;
+            } else if (tmp[delta] == MINUS && delta != 0) {
                 code = INCORRECT_INPUT;
                 break;
             }

@@ -13,14 +13,14 @@ enum ASCIIConversion {
 };
 
 enum MAXValues {
-    BIN_MAX,
+    DEC_MIN = -2147483646,
     OCT_MAX = 17777777777,
     DEC_MAX = 2147483647,
 };
 
 void validateInput(AppContext* context, Params* params);
-enum ValidationStatus validateBin(Params* params);
-enum ValidationStatus validateOct(Params* params);
-enum ValidationStatus validateDec(Params* params);
+ValidationStatus validateBin(Params* params);
+ValidationStatus validateOct(Params* params);
+ValidationStatus validateDec(Params* params);
 
 #endif // VALIDATE_H

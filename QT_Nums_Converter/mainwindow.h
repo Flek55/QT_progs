@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include <QClipboard>
 #include <QErrorMessage>
 #include <QMessageBox>
 #include "appcontext.h"
+#include "logic.h"
 #include "entrypoint.h"
 #include <string.h>
 
@@ -27,13 +27,13 @@ private:
     Ui::MainWindow *ui;
     QMessageBox msgBox;
 
-    AppContext* context;
+    AppContext context;
 
     void onCalculateClicked();
     void onClearClicked();
     void onSwapClicked();
     void updateFields(Params* params);
-    void updateValue(Params* params);
+    void updateValue();
     void displayEmptyInputError();
     void onCopyClicked();
     void parseNumSystems();
